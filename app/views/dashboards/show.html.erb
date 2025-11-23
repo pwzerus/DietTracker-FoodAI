@@ -1,0 +1,86 @@
+<h1 class="page-title">Hello, <%= current_user.username.present? ? current_user.username : current_user.email %></h1>
+
+<section class="summary-card">
+  <h2>Today's goals</h2>
+  <% calories_left = @calories_balance %>
+  <% calories_status_class = calories_left <= 0 ? "value--negative" : "value--positive" %>
+  <dl class="macro-summary">
+    <div>
+      <dt>Calories left</dt>
+      <dd class="calories-left"
+          data-controller="inline-goals"
+          data-inline-goals-field-value="calories_left"
+          data-inline-goals-current-value-value="<%= calories_left %>"
+          data-inline-goals-unit-value="calories">
+        <span class="value <%= calories_status_class %>"><%= number_with_delimiter(calories_left) %></span> calories
+      </dd>
+    </div>
+    <div>
+      <dt>Protein</dt>
+      <dd data-controller="inline-goals" data-inline-goals-field-value="daily_protein_goal_g" data-inline-goals-current-value-value="<%= current_user.daily_protein_goal_g || '' %>"><span class="value"><%= @remaining_macros[:protein_g] %></span> g</dd>
+    </div>
+    <div>
+      <dt>Fats</dt>
+      <dd data-controller="inline-goals" data-inline-goals-field-value="daily_fats_goal_g" data-inline-goals-current-value-value="<%= current_user.daily_fats_goal_g || '' %>"><span class="value"><%= @remaining_macros[:fats_g] %></span> g</dd>
+    </div>
+    <div>
+      <dt>Carbs</dt>
+      <dd data-controller="inline-goals" data-inline-goals-field-value="daily_carbs_goal_g" data-inline-goals-current-value-value="<%= current_user.daily_carbs_goal_g || '' %>"><span class="value"><%= @remaining_macros[:carbs_g] %></span> g</dd>
+    </div>
+  </dl>
+  <% if calories_left <= 0 %>
+    <p class="calories-over-message" role="status">Calories Over</p>
+  <% end %>
+  <p class="mt-2">
+    Need to adjust your targets? <%= link_to "Retake the survey", new_onboarding_path %>.
+  </p>
+</section>
+
+<section class="actions">
+  <%= link_to "Add a food entry", new_food_log_path, class: "btn btn-primary" %>
+  <%= link_to "View all logs", food_logs_path, class: "btn" %>
+</section>
+
+<section class="logs">
+  <h2>Today's entries</h2>
+  <% if @todays_logs.any? %>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Food</th>
+          <th>Calories</th>
+          <th>Protein</th>
+          <th>Fats</th>
+          <th>Carbs</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @todays_logs.each do |log| %>
+          <tr>
+            <td>
+              <strong><%= log.food_name %></strong>
+              <small class="text-muted">
+                <time data-controller="local-time" data-local-time-format-value="short" datetime="<%= log.created_at.iso8601 %>">
+                  <%= l log.created_at, format: :short %>
+                </time>
+              </small>
+            </td>
+            <td><%= log.calories %></td>
+            <td><%= log.protein_g %> g</td>
+            <td><%= log.fats_g %> g</td>
+            <td><%= log.carbs_g %> g</td>
+            <td>
+              <div class="log-actions">
+                <%= link_to "Edit", edit_food_log_path(log), class: "btn btn-link" %>
+                <%= button_to "Remove", food_log_path(log), method: :delete, data: { confirm: "Remove this entry?" }, class: "btn btn-link" %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p>No entries logged yet. Start by adding your first meal.</p>
+  <% end %>
+</section>

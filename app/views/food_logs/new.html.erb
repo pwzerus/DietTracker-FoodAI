@@ -1,0 +1,8 @@
+<h1 class="page-title">Log a meal</h1>
+
+<div class="lead">
+  Upload a photo for AI-powered nutrition analysis or enter the details manually.
+  Providing both ensures the most accurate tracking.
+</div>
+
+<%= render "form", food_log: @food_log, submit_label: "Save entry", cancel_path: dashboard_path %>
